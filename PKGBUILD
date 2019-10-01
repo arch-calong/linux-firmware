@@ -2,8 +2,8 @@
 
 pkgbase=linux-firmware
 pkgname=(linux-firmware amd-ucode)
-_commit=dff98c6c57383fe343407bcb7b6e775e0b87274f
-pkgver=20190726.dff98c6
+_commit=c0590d8300dda251b7e9291a4c9f1693436c2793
+pkgver=20190926.c0590d8
 pkgrel=1
 pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
 makedepends=('git')
@@ -64,7 +64,6 @@ package_linux-firmware() {
   cd "${srcdir}/${pkgname}"
 
   make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
-  rm "${pkgdir}/usr/lib/firmware/"{Makefile,README,configure,GPL-3}
 
   install -d "${pkgdir}/usr/share/licenses/${pkgname}"
   install -Dm644 LICEN* WHENCE "${pkgdir}/usr/share/licenses/linux-firmware/"
