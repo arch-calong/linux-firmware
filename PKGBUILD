@@ -4,7 +4,7 @@ pkgbase=linux-firmware
 pkgname=(linux-firmware amd-ucode)
 _commit=2b016afc348ba4b5fb2016ffcb2822f4a293da0c
 pkgver=20191022.2b016af
-pkgrel=1
+pkgrel=3
 pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
 makedepends=('git')
 arch=('any')
@@ -14,11 +14,7 @@ options=(!strip)
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}?signed")
 
-prepare() {
-  echo ${pkgbase}
-
-  cd "${srcdir}/${pkgname}"
-}
+sha256sums=('SKIP')
 
 pkgver() {
   cd "${srcdir}/${pkgname}"
@@ -36,7 +32,6 @@ build() {
 }
 
 package_linux-firmware() {
-  groups=('base')
   conflicts=('linux-firmware-git'
              'kernel26-firmware'
              'ar9170-fw'
@@ -80,6 +75,3 @@ package_amd-ucode() {
   install -D -m0644 amd-ucode.img "${pkgdir}"/boot/amd-ucode.img  
   install -D -m0644 "${srcdir}/${pkgbase}/LICENSE.amd-ucode" "${pkgdir}/usr/share/licenses/amd-ucode/LICENSE"
 }
-
-# vim:set ts=2 sw=2 et:
-sha256sums=('SKIP')
