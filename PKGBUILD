@@ -2,8 +2,8 @@
 
 pkgbase=linux-firmware
 pkgname=(linux-firmware amd-ucode)
-_commit=c2df39a790bf55d0a24eb8fa1a3e93af69fd9919
-pkgver=20200204.c2df39a
+_commit=b791e15d3e0ac2705eaa7965ed9b6d4c85fef2a2
+pkgver=20200204.r1571.b791e15
 pkgrel=1
 pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
 makedepends=('git')
@@ -20,7 +20,7 @@ pkgver() {
   cd "${srcdir}/${pkgname}"
 
   # Commit date + short rev
-  echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).$(git rev-parse --short HEAD)
+  echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)
 }
 
 build() {
