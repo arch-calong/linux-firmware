@@ -1,3 +1,6 @@
+# Maintainer: Helmut Stult <helmut[at]manjaro[dot]org>
+
+# Arch credits:
 # Maintainer: Thomas Bächler <thomas@archlinux.org>
 
 pkgbase=linux-firmware
