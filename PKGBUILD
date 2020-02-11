@@ -7,17 +7,25 @@ pkgbase=linux-firmware
 pkgname=(linux-firmware amd-ucode)
 _commit=6f89735800fe3af761104defdb81b50b6d6402f0
 pkgver=20200207.r1575.6f89735
-pkgrel=1
+pkgrel=2
 pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
 makedepends=('git')
 arch=('any')
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
 license=('GPL2' 'GPL3' 'custom')
 options=(!strip)
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}?signed"
+        0001-Update-iwlwifi-firmware.patch.xz)
+sha256sums=('SKIP'
+            '9a2e7151c8b1235dacbe6fcc06c77a919fd9ac1495de173cab0ed200e2bec82e')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}?signed")
 
-sha256sums=('SKIP')
+prepare() {
+  cd "${srcdir}/${pkgname}"
+
+  # https://bugs.archlinux.org/task/64703
+  git apply -3 ../0001-Update-iwlwifi-firmware.patch
+}
 
 pkgver() {
   cd "${srcdir}/${pkgname}"
@@ -29,9 +37,16 @@ pkgver() {
 build() {
   mkdir -p kernel/x86/microcode
   cat ${pkgbase}/amd-ucode/microcode_amd*.bin > kernel/x86/microcode/AuthenticAMD.bin
-  # Make the .bin reproducible 
-  [ ! -z $SOURCE_DATE_EPOCH ] && touch -d @$SOURCE_DATE_EPOCH kernel/x86/microcode/AuthenticAMD.bin
-  echo kernel/x86/microcode/AuthenticAMD.bin | bsdcpio -o -H newc -R 0:0 > amd-ucode.img
+
+  # Reproducibility: set the timestamp on the bin file
+  if [[ -n $SOURCE_DATE_EPOCH ]]; then 
+    touch -d @$SOURCE_DATE_EPOCH kernel/x86/microcode/AuthenticAMD.bin
+  fi
+
+  # Reproducibility: strip the inode and device numbers from the cpio archive
+  echo kernel/x86/microcode/AuthenticAMD.bin |
+    bsdtar --uid 0 --gid 0 -cnf - -T - |
+    bsdtar --null -cf - --format=newc @- > amd-ucode.img
 }
 
 package_linux-firmware() {
@@ -63,18 +78,17 @@ package_linux-firmware() {
 
   make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
 
-  install -d "${pkgdir}/usr/share/licenses/${pkgname}"
-  install -Dm644 LICEN* WHENCE "${pkgdir}/usr/share/licenses/linux-firmware/"
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN* WHENCE
 
   # Trigger a microcode reload for configurations not using early updates
-  install -d "${pkgdir}/usr/lib/tmpfiles.d"
-  echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' \
-    >"${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
+  echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' |
+    install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
 }
 
 package_amd-ucode() {
   pkgdesc='Microcode update files for AMD CPUs'
 
-  install -D -m0644 amd-ucode.img "${pkgdir}"/boot/amd-ucode.img  
-  install -D -m0644 "${srcdir}/${pkgbase}/LICENSE.amd-ucode" "${pkgdir}/usr/share/licenses/amd-ucode/LICENSE"
+  install -Dt "${pkgdir}/boot" -m644 amd-ucode.img
+  install -Dm644 ${pkgbase}/LICENSE.amd-ucode "${pkgdir}/usr/share/licenses/$pkgname/LICENSE"
 }
+# vim:set ts=2 sw=2 et:
