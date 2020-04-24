@@ -5,8 +5,8 @@
 
 pkgbase=linux-firmware
 pkgname=(linux-firmware amd-ucode)
-_commit=78c0348458c035cf1de6093555db5431cc8c1268
-pkgver=20200421.r1628.78c0348
+_commit=b2cad6a2d733d9b10d25a31874a51d96908d6e89
+pkgver=20200424.r1632.b2cad6a
 pkgrel=1
 pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
 makedepends=('git')
@@ -14,17 +14,12 @@ arch=('any')
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
 license=('GPL2' 'GPL3' 'custom')
 options=(!strip)
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}?signed"
-        0001-Update-iwlwifi-firmware.patch.xz)
-sha256sums=('SKIP'
-            '9a2e7151c8b1235dacbe6fcc06c77a919fd9ac1495de173cab0ed200e2bec82e')
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}?signed")
+sha256sums=('SKIP')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
 prepare() {
   cd "${srcdir}/${pkgname}"
-
-  # https://bugs.archlinux.org/task/64703
-  git apply -3 ../0001-Update-iwlwifi-firmware.patch
 }
 
 pkgver() {
@@ -91,4 +86,5 @@ package_amd-ucode() {
   install -Dt "${pkgdir}/boot" -m644 amd-ucode.img
   install -Dm644 ${pkgbase}/LICENSE.amd-ucode "${pkgdir}/usr/share/licenses/$pkgname/LICENSE"
 }
+
 # vim:set ts=2 sw=2 et:
