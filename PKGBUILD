@@ -5,8 +5,8 @@
 
 pkgbase=linux-firmware
 pkgname=(linux-firmware amd-ucode)
-_commit=646f159690e2e00fdb829faeed35e23217ac944c
-pkgver=20201218.r1803.646f159
+_commit=f580dc2bc1a06ad1511969fb5b04406c4a8e37ce
+pkgver=20201230.r1807.f580dc2
 pkgrel=1
 pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
 makedepends=('git')
