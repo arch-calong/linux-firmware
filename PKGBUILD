@@ -5,25 +5,35 @@
 
 pkgbase=linux-firmware
 pkgname=(linux-firmware amd-ucode)
-_commit='0f66b74b6267fce66395316308d88b0535aa3df2'
-pkgver=20210609.r1950.0f66b74
+
+_commit='d79c26779d459063b8052b7fe0a48bce4e08d0d9'
+pkgver=20210629.r1978.d79c267
 pkgrel=1
 pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
-makedepends=('git')
-arch=('any')
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
 license=('GPL2' 'GPL3' 'custom')
+arch=('any')
+makedepends=('git')
 options=(!strip)
 source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}?signed")
 sha256sums=('SKIP')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
+_backports=(
+)
+
 prepare() {
-  cd "${srcdir}/${pkgname}"
+  cd ${pkgname}
+
+  local _c
+  for _c in "${_backports[@]}"; do
+    git log --oneline -1 "${_c}"
+    git cherry-pick -n "${_c}"
+  done
 }
 
 pkgver() {
-  cd "${srcdir}/${pkgname}"
+  cd ${pkgname}
 
   # Commit date + short rev
   echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)
@@ -34,8 +44,8 @@ build() {
   cat ${pkgbase}/amd-ucode/microcode_amd*.bin > kernel/x86/microcode/AuthenticAMD.bin
 
   # Reproducibility: set the timestamp on the bin file
-  if [[ -n $SOURCE_DATE_EPOCH ]]; then 
-    touch -d @$SOURCE_DATE_EPOCH kernel/x86/microcode/AuthenticAMD.bin
+  if [[ -n ${SOURCE_DATE_EPOCH} ]]; then 
+    touch -d @${SOURCE_DATE_EPOCH} kernel/x86/microcode/AuthenticAMD.bin
   fi
 
   # Reproducibility: strip the inode and device numbers from the cpio archive
@@ -45,46 +55,22 @@ build() {
 }
 
 package_linux-firmware() {
-  conflicts=('linux-firmware-git'
-             'kernel26-firmware'
-             'ar9170-fw'
-             'iwlwifi-1000-ucode'
-             'iwlwifi-3945-ucode'
-             'iwlwifi-4965-ucode'
-             'iwlwifi-5000-ucode'
-             'iwlwifi-5150-ucode'
-             'iwlwifi-6000-ucode'
-             'rt2870usb-fw'
-             'rt2x00-rt61-fw'
-             'rt2x00-rt71w-fw')
-  replaces=('kernel26-firmware'
-            'ar9170-fw'
-            'iwlwifi-1000-ucode'
-            'iwlwifi-3945-ucode'
-            'iwlwifi-4965-ucode'
-            'iwlwifi-5000-ucode'
-            'iwlwifi-5150-ucode'
-            'iwlwifi-6000-ucode'
-            'rt2870usb-fw'
-            'rt2x00-rt61-fw'
-            'rt2x00-rt71w-fw')
-
-  cd "${srcdir}/${pkgname}"
+  cd ${pkgname}
 
   make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
-
-  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN* WHENCE
 
   # Trigger a microcode reload for configurations not using early updates
   echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' |
     install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
+
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN* WHENCE
 }
 
 package_amd-ucode() {
-  pkgdesc='Microcode update files for AMD CPUs'
+  pkgdesc="Microcode update image for AMD CPUs (Manjaro Overlay Package)"
+  license=(custom)
 
   install -Dt "${pkgdir}/boot" -m644 amd-ucode.img
-  install -Dm644 ${pkgbase}/LICENSE.amd-ucode "${pkgdir}/usr/share/licenses/$pkgname/LICENSE"
-}
 
-# vim:set ts=2 sw=2 et:
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 ${pkgbase}/LICENSE.amd-ucode
+}
