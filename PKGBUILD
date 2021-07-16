@@ -6,8 +6,8 @@
 pkgbase=linux-firmware
 pkgname=(linux-firmware amd-ucode)
 
-_commit='d79c26779d459063b8052b7fe0a48bce4e08d0d9'
-pkgver=20210629.r1978.d79c267
+_commit='b7c134f0d3491113958276d631b4e69771a6c5be'
+pkgver=20210716.r1988.b7c134f
 pkgrel=1
 pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
