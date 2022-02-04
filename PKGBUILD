@@ -1,15 +1,15 @@
-# Maintainer: Helmut Stult <helmut[at]manjaro[dot]org>
-
-# Arch credits:
-# Maintainer: Thomas Bächler <thomas@archlinux.org>
+# Maintainer: Philip Müller <philm@manjaro.org>
+# Contributor: Thomas Bächler <thomas@archlinux.org>
 
 pkgbase=linux-firmware
-pkgname=(linux-firmware amd-ucode)
-
-_commit='168452ee695b5edb9deb641059bc110b9c5e8fc7'
-pkgver=20210719.r1990.168452e
-pkgrel=1
-pkgdesc="Firmware files for Linux (Manjaro Overlay Package)"
+pkgname=(linux-firmware-whence linux-firmware amd-ucode
+         linux-firmware-{nfp,mellanox,marvell,qcom,liquidio,qlogic,bnx2x}
+)
+#_tag=20211216
+_commit=0c6a7b3bf728b95c8b7b95328f94335e2bb2c967
+pkgver=20220119.0c6a7b3
+pkgrel=3
+pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
 license=('GPL2' 'GPL3' 'custom')
 arch=('any')
@@ -22,8 +22,19 @@ validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@
 _backports=(
 )
 
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
 prepare() {
-  cd ${pkgname}
+  cd ${pkgbase}
 
   local _c
   for _c in "${_backports[@]}"; do
@@ -33,10 +44,10 @@ prepare() {
 }
 
 pkgver() {
-  cd ${pkgname}
+  cd ${pkgbase}
 
   # Commit date + short rev
-  echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+  echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).$(git rev-parse --short HEAD)
 }
 
 build() {
@@ -54,7 +65,15 @@ build() {
     bsdtar --null -cf - --format=newc @- > amd-ucode.img
 }
 
+package_linux-firmware-whence() {
+  pkgdesc+=" - contains the WHENCE license file which documents the vendor license details"
+  cd "$pkgbase"
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 WHENCE
+}
+
 package_linux-firmware() {
+  depends=('linux-firmware-whence')
+  
   cd ${pkgname}
 
   make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
@@ -63,14 +82,86 @@ package_linux-firmware() {
   echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' |
     install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
 
-  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN* WHENCE
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN*
+
+  # split
+  cd "$pkgdir"
+  _pick linux-firmware-nfp usr/lib/firmware/netronome
+  _pick linux-firmware-nfp usr/share/licenses/${pkgname}/LICENCE.Netronome
+   
+  _pick linux-firmware-mellanox usr/lib/firmware/mellanox
+  
+  _pick linux-firmware-marvell usr/lib/firmware/{libertas,mwl8k,mwlwifi,mrvl}
+  _pick linux-firmware-marvell usr/share/licenses/${pkgname}/LICENCE.{Marvell,NXP}
+  
+  _pick linux-firmware-qcom usr/lib/firmware/{qcom,a300_*}
+  _pick linux-firmware-qcom usr/share/licenses/${pkgname}/LICENSE.qcom
+  
+  _pick linux-firmware-liquidio usr/lib/firmware/liquidio
+  _pick linux-firmware-liquidio usr/share/licenses/${pkgname}/LICENCE.cavium_liquidio
+  
+  _pick linux-firmware-qlogic usr/lib/firmware/{qlogic,qed,ql2???_*,c{b,t,t2}fw-*}
+  _pick linux-firmware-qlogic usr/share/licenses/${pkgname}/LICENCE.{qla1280,qla2xxx}
+  
+  _pick linux-firmware-bnx2x usr/lib/firmware/bnx2x*
 }
 
 package_amd-ucode() {
-  pkgdesc="Microcode update image for AMD CPUs (Manjaro Overlay Package)"
+  pkgdesc="Microcode update image for AMD CPUs"
   license=(custom)
 
   install -Dt "${pkgdir}/boot" -m644 amd-ucode.img
 
   install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 ${pkgbase}/LICENSE.amd-ucode
 }
+
+package_linux-firmware-nfp() {
+  pkgdesc+=" - nfp / Firmware for Netronome Flow Processors"
+  depends=('linux-firmware-whence')
+
+  mv -v linux-firmware-nfp/* "${pkgdir}"
+}
+
+package_linux-firmware-mellanox() {
+  pkgdesc+=" - mellanox / Firmware for Mellanox Spectrum switches"
+  depends=('linux-firmware-whence')
+
+  mv -v linux-firmware-mellanox/* "${pkgdir}"
+}
+
+package_linux-firmware-marvell() {
+  pkgdesc+=" - marvell / Firmware for Marvell devices"
+  depends=('linux-firmware-whence')
+
+  mv -v linux-firmware-marvell/* "${pkgdir}"
+}
+
+package_linux-firmware-qcom() {
+  pkgdesc+=" - qcom / Firmware for Qualcomm SoCs"
+  depends=('linux-firmware-whence')
+
+  mv -v linux-firmware-qcom/* "${pkgdir}"
+}
+
+package_linux-firmware-liquidio() {
+  pkgdesc+=" - liquidio / Firmware for Cavium LiquidIO server adapters"
+  depends=('linux-firmware-whence')
+
+  mv -v linux-firmware-liquidio/* "${pkgdir}"
+}
+
+package_linux-firmware-qlogic() {
+  pkgdesc+=" - qlogic / Firmware for QLogic devices"
+  depends=('linux-firmware-whence')
+
+  mv -v linux-firmware-qlogic/* "${pkgdir}"
+}
+
+package_linux-firmware-bnx2x() {
+  pkgdesc+=" - bnx2x / Firmware for Broadcom NetXtreme II 10Gb ethernet adapters"
+  depends=('linux-firmware-whence')
+
+  mv -v linux-firmware-bnx2x/* "${pkgdir}"
+}
+
+# vim:set sw=2 et:
