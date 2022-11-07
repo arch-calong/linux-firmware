@@ -1,12 +1,13 @@
 # Maintainer: Philip Müller <philm@manjaro.org>
+# Maintainer: Mark Wagie <mark at manjaro dot org>
 # Contributor: Thomas Bächler <thomas@archlinux.org>
 
 pkgbase=linux-firmware
 pkgname=(linux-firmware-whence linux-firmware amd-ucode
          linux-firmware-{nfp,mellanox,marvell,qcom,liquidio,qlogic,bnx2x}
 )
-_tag=20220913
-pkgver=20220913.f09bebf
+_tag=20221012
+pkgver=20221012.8b07c1f
 pkgrel=1
 pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
