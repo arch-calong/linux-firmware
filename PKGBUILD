@@ -8,15 +8,17 @@ pkgname=(linux-firmware-whence linux-firmware amd-ucode
 )
 _tag=1cd1c871
 pkgver=20230612.1cd1c871
-pkgrel=1
+pkgrel=2
 pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
 license=('GPL2' 'GPL3' 'custom')
 arch=('any')
 makedepends=('git')
 options=(!strip)
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}") #?signed")
-sha256sums=('SKIP')
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}"
+        "git+https://gitlab.com/asus-linux/firmware.git")
+sha256sums=('SKIP'
+            'SKIP')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
 _backports=(
@@ -82,6 +84,9 @@ package_linux-firmware() {
     install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
 
   install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN*
+  
+  # Install ASUS firmware
+  cp -av "${srcdir}"/firmware/* "${pkgdir}"/usr/lib/firmware
 
   # split
   cd "${pkgdir}"
