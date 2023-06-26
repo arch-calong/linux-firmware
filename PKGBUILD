@@ -136,7 +136,7 @@ package_linux-firmware-marvell() {
 
   mv -v linux-firmware-marvell/* "${pkgdir}"
   # remove arm64 firmware #76583
-  rm "${pkgdir}"/usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img.xz
+  rm "${pkgdir}"/usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img
 }
 
 package_linux-firmware-qcom() {
