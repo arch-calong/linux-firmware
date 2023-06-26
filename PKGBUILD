@@ -8,7 +8,7 @@ pkgname=(linux-firmware-whence linux-firmware amd-ucode
 )
 _tag=20230625
 pkgver=20230625.ee91452d
-pkgrel=0
+pkgrel=0.1
 pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
 license=('GPL2' 'GPL3' 'custom')
@@ -75,7 +75,7 @@ package_linux-firmware() {
 
   cd ${pkgbase}
 
-  make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install-xz
+  make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
 
   # useless (FS#46591)
   # Trigger a microcode reload for configurations not using early updates
