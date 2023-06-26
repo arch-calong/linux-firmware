@@ -6,19 +6,17 @@ pkgbase=linux-firmware
 pkgname=(linux-firmware-whence linux-firmware amd-ucode
          linux-firmware-{nfp,mellanox,marvell,qcom,liquidio,qlogic,bnx2x}
 )
-_tag=1cd1c871
-pkgver=20230612.1cd1c871
-pkgrel=2
+_tag=20230625
+pkgver=20230625.ee91452d
+pkgrel=0
 pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
 license=('GPL2' 'GPL3' 'custom')
 arch=('any')
 makedepends=('git')
 options=(!strip)
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}"
-        "git+https://gitlab.com/asus-linux/firmware.git")
-sha256sums=('SKIP'
-            'SKIP')
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}?signed")
+sha256sums=('SKIP')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
 _backports=(
@@ -77,16 +75,14 @@ package_linux-firmware() {
 
   cd ${pkgbase}
 
-  make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
+  make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install-xz
 
+  # useless (FS#46591)
   # Trigger a microcode reload for configurations not using early updates
-  echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' |
-    install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
+  #echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' |
+  #  install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
 
   install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN*
-  
-  # Install ASUS firmware
-  cp -av "${srcdir}"/firmware/* "${pkgdir}"/usr/lib/firmware
 
   # split
   cd "${pkgdir}"
@@ -140,7 +136,7 @@ package_linux-firmware-marvell() {
 
   mv -v linux-firmware-marvell/* "${pkgdir}"
   # remove arm64 firmware #76583
-  rm "${pkgdir}"/usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img
+  rm "${pkgdir}"/usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img.xz
 }
 
 package_linux-firmware-qcom() {
