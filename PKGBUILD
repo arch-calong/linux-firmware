@@ -77,16 +77,21 @@ package_linux-firmware() {
 
   make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
 
-  # useless (FS#46591)
-  # Trigger a microcode reload for configurations not using early updates
-  #echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' |
-  #  install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
+  # useless without CONFIG_MICROCODE_LATE_LOADING
+  # https://bugs.archlinux.org/task/46591
+  #
+  # # Trigger a microcode reload for configurations not using early updates
+  # echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' |
+  #   install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
 
   install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN*
 
-  # split
   cd "${pkgdir}"
 
+  # remove arm64 firmware https://bugs.archlinux.org/task/76583
+  rm usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img
+
+  # split
   _pick linux-firmware-nfp usr/lib/firmware/netronome
   _pick linux-firmware-nfp usr/share/licenses/${pkgname}/LICENCE.Netronome
 
@@ -135,8 +140,6 @@ package_linux-firmware-marvell() {
   depends=('linux-firmware-whence')
 
   mv -v linux-firmware-marvell/* "${pkgdir}"
-  # remove arm64 firmware #76583
-  rm "${pkgdir}"/usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img
 }
 
 package_linux-firmware-qcom() {
