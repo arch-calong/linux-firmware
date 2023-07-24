@@ -6,19 +6,18 @@ pkgbase=linux-firmware
 pkgname=(linux-firmware-whence linux-firmware amd-ucode
          linux-firmware-{nfp,mellanox,marvell,qcom,liquidio,qlogic,bnx2x}
 )
-_tag=20230625
-pkgver=20230625.ee91452d
-pkgrel=2
+_tag=59fbffa9ec8e4b0b31d2d13e715cf6580ad0e99c
+pkgver=20230724.59fbffa9
+pkgrel=1
 pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
 license=('GPL2' 'GPL3' 'custom')
 arch=('any')
 makedepends=('git')
 options=(!strip)
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}?signed"
-        'dcn_3_1_5_dmcub.bin::https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/amdgpu/dcn_3_1_5_dmcub.bin?id=045b2136a61968e7984caeae857a326150bfe851')
-sha256sums=('SKIP'
-            '5fa3d19a477dcd8e7644a739a7c38c776548948f4dc6c832752f30e96a247a4b')
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}" #?signed"
+)
+sha256sums=('SKIP')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
 _backports=(
@@ -89,9 +88,6 @@ package_linux-firmware() {
   install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN*
 
   cd "${pkgdir}"
-  
-  # https://gitlab.freedesktop.org/drm/amd/-/issues/2666
-  install -Dm644 "${srcdir}"/dcn_3_1_5_dmcub.bin -t "${pkgdir}"/usr/lib/firmware/amdgpu
 
   # remove arm64 firmware https://bugs.archlinux.org/task/76583
   rm usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img
