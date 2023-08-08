@@ -6,8 +6,8 @@ pkgbase=linux-firmware
 pkgname=(linux-firmware-whence linux-firmware amd-ucode
          linux-firmware-{nfp,mellanox,marvell,qcom,liquidio,qlogic,bnx2x}
 )
-_tag=253cc179d849fc82489773b2b553a49858d8725f
-pkgver=20230731.253cc179
+_tag=7be2766de1f45a494a3e913f2e9fb77191a8ddb5
+pkgver=20230804.7be2766d
 pkgrel=1
 pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
