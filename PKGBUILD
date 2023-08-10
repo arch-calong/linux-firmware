@@ -6,8 +6,8 @@ pkgbase=linux-firmware
 pkgname=(linux-firmware-whence linux-firmware amd-ucode
          linux-firmware-{nfp,mellanox,marvell,qcom,liquidio,qlogic,bnx2x}
 )
-_tag=789aa81504126c2b062d04aacea1570af950ad4f
-pkgver=20230809.789aa815
+_tag=20230804
+pkgver=20230810.7be2766d
 pkgrel=1
 pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
@@ -21,6 +21,7 @@ sha256sums=('SKIP')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
 _backports=(
+  f2eb058afc57348cde66852272d6bf11da1eef8f  # fixes for "inception": https://www.amd.com/en/resources/product-security/bulletin/amd-sb-7005.html
 )
 
 prepare() {
@@ -36,8 +37,11 @@ prepare() {
 pkgver() {
   cd ${pkgbase}
 
+  # until a new release is possible
+  echo 20230810.7be2766d
+
   # Commit date + short rev
-  echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).$(git rev-parse --short HEAD)
+  #echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).$(git rev-parse --short HEAD)
 }
 
 build() {
