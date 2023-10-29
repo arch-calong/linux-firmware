@@ -6,8 +6,8 @@ pkgbase=linux-firmware
 pkgname=(linux-firmware-whence linux-firmware amd-ucode
          linux-firmware-{nfp,mellanox,marvell,qcom,liquidio,qlogic,bnx2x}
 )
-_tag=20230804
-pkgver=20230810.7be2766d
+_tag=20230919
+pkgver=20230918.3672ccab
 pkgrel=1
 pkgdesc="Firmware files for Linux"
 url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
@@ -15,13 +15,11 @@ license=('GPL2' 'GPL3' 'custom')
 arch=('any')
 makedepends=('git')
 options=(!strip)
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}" #?signed"
-)
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}?signed")
 sha256sums=('SKIP')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
 _backports=(
-  f2eb058afc57348cde66852272d6bf11da1eef8f  # fixes for "inception": https://www.amd.com/en/resources/product-security/bulletin/amd-sb-7005.html
 )
 
 prepare() {
@@ -37,11 +35,8 @@ prepare() {
 pkgver() {
   cd ${pkgbase}
 
-  # until a new release is possible
-  echo 20230810.7be2766d
-
   # Commit date + short rev
-  #echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).$(git rev-parse --short HEAD)
+  echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).$(git rev-parse --short HEAD)
 }
 
 build() {
@@ -81,13 +76,6 @@ package_linux-firmware() {
   cd ${pkgbase}
 
   make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
-
-  # useless without CONFIG_MICROCODE_LATE_LOADING
-  # https://bugs.archlinux.org/task/46591
-  #
-  # # Trigger a microcode reload for configurations not using early updates
-  # echo 'w /sys/devices/system/cpu/microcode/reload - - - - 1' |
-  #   install -Dm644 /dev/stdin "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
 
   install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN*
 
