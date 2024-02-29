@@ -11,12 +11,12 @@ _tag=20240220
 pkgver=20240220.97b693d2
 pkgrel=1
 pkgdesc="Firmware files for Linux"
-url="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git;a=summary"
+url="https://gitlab.com/kernel-firmware/linux-firmware"
 license=('GPL2' 'GPL3' 'custom')
 arch=('any')
 makedepends=('git' 'rdfind')
 options=(!strip)
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#tag=${_tag}?signed")
+source=("git+$url.git?signed#tag=${_tag}")
 sha256sums=('SKIP')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
