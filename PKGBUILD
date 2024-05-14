@@ -9,7 +9,7 @@ pkgname=(linux-firmware-whence linux-firmware amd-ucode
 )
 _tag=20240410
 pkgver=20240409.1addd7dc
-pkgrel=1.1
+pkgrel=1.2
 pkgdesc="Firmware files for Linux"
 url="https://gitlab.com/kernel-firmware/linux-firmware"
 license=('GPL2' 'GPL3' 'custom')
@@ -76,14 +76,14 @@ package_linux-firmware() {
 
   cd ${pkgbase}
 
-  make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
+  ZSTD_CLEVEL=19 make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install-zst
 
   install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN*
 
   cd "${pkgdir}"
 
   # remove arm64 firmware https://bugs.archlinux.org/task/76583
-  rm usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img
+  rm usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img.zst
 
   # split
   _pick amd-ucode usr/lib/firmware/amd-ucode
@@ -169,4 +169,5 @@ package_linux-firmware-bnx2x() {
 }
 
 # vim:set sw=2 et:
+
 
