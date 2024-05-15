@@ -7,9 +7,9 @@ pkgbase=linux-firmware
 pkgname=(linux-firmware-whence linux-firmware amd-ucode
          linux-firmware-{nfp,mellanox,marvell,qcom,liquidio,qlogic,bnx2x}
 )
-_tag=20240410
-pkgver=20240409.1addd7dc
-pkgrel=1.2
+_tag=20240513
+pkgver=20240510.b9d2bf23
+pkgrel=1
 pkgdesc="Firmware files for Linux"
 url="https://gitlab.com/kernel-firmware/linux-firmware"
 license=('GPL2' 'GPL3' 'custom')
@@ -17,7 +17,7 @@ arch=('any')
 makedepends=('git' 'rdfind')
 options=(!strip)
 source=("git+$url.git?signed#tag=${_tag}")
-sha256sums=('60e129b4b0deecc59542487bbff6afde580db47333a01ea34e51421f3b962fc2')
+sha256sums=('9e4f49de5dcca55f47d76b0a1c8177471ec1b9cf222f69ddd802c37627328eff')
 validpgpkeys=('4CDE8575E547BF835FE15807A31B6BD72486CFD6') # Josh Boyer <jwboyer@fedoraproject.org>
 
 _backports=(
@@ -76,14 +76,19 @@ package_linux-firmware() {
 
   cd ${pkgbase}
 
-  ZSTD_CLEVEL=19 make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install-zst
+  # https://bugs.archlinux.org/task/78892
+  #ZSTD_CLEVEL=19 make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install-zst
+  
+  # Legacy support for <5.19 Kernels
+  make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
 
   install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 LICEN*
 
   cd "${pkgdir}"
 
   # remove arm64 firmware https://bugs.archlinux.org/task/76583
-  rm usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img.zst
+  #rm usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img.zst
+  rm usr/lib/firmware/mrvl/prestera/mvsw_prestera_fw_arm64-v4.1.img
 
   # split
   _pick amd-ucode usr/lib/firmware/amd-ucode
