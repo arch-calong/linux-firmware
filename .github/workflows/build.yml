@@ -20,6 +20,7 @@ jobs:
         run: |
           echo HOME=/builder >> "$GITHUB_ENV"
           echo PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin >> "$GITHUB_ENV"
+      
       - name: Install build dependencies
         shell: bash
         working-directory: ${{ env.workdir }}
@@ -39,17 +40,18 @@ jobs:
           cat /etc/makepkg.conf |grep "PACKAGER="
           echo "whoami: $(whoami)"; echo "PWD: $PWD"; echo "HOME: $HOME"; ls -al /builder
           su - builder -c "git clone https://github.com/${{ github.repository }}.git -b  ${GITHUB_REF##*/} src"
+      
+      - name: Import public gpg key
+        shell: bash
+        run: |
+          su - builder -c "gpg --recv-key A31B6BD72486CFD6"
+          
       - name: Build
         shell: bash
         working-directory: ${{ env.workdir }}/src
         run: |
           su - builder -c "cd ${{ env.workdir }}/src && makepkg -s PKGBUILD"
           ls -al
-      
-      - name: Import public gpg key
-        shell: bash
-        run: |
-          su - builder -c "gpg --recv-key A31B6BD72486CFD6"
     
       - name: Sign
         shell: bash
