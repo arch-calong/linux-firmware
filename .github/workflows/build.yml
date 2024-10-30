@@ -27,6 +27,7 @@ jobs:
           echo "Y"| sudo pacman -Sy base-devel git pacman sudo rdfind \
           bc docbook-xsl pahole inetutils \
           xmlto cpio make
+      
       - name: Clone repos
         shell: bash
         working-directory: ${{ env.workdir }}
@@ -44,6 +45,12 @@ jobs:
         run: |
           su - builder -c "cd ${{ env.workdir }}/src && makepkg -s PKGBUILD"
           ls -al
+      
+      - name: Import public gpg key
+        shell: bash
+        run: |
+          su - builder -c "gpg --recv-key A31B6BD72486CFD6"
+    
       - name: Sign
         shell: bash
         working-directory: ${{ env.workdir }}/src
@@ -57,6 +64,7 @@ jobs:
                 gpg --pinentry-mode loopback --passphrase "${{ secrets.CALONG_GPG_PASSWD }}" --detach-sign ${p}
               done
           fi
+    
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
