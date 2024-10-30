@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "whoami: $(whoami)"
           su - builder -c "makepkg PKGBUILD"
-          ls -al; ls -al pkg
+          ls -al
       - name: Sign
         shell: bash
         working-directory: ${{ env.workdir }}
@@ -60,6 +60,7 @@ jobs:
                 gpg --pinentry-mode loopback --passphrase "${{ secrets.CALONG_GPG_PASSWD }}" --detach-sign ${p}
               done
           fi
+          ls -al; ls -al src;
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
