@@ -24,7 +24,7 @@ jobs:
         shell: bash
         working-directory: ${{ env.workdir }}
         run: |
-          echo "Y"| sudo pacman -Sy base-devel git pacman sudo rdfind\
+          echo "Y"| sudo pacman -Sy base-devel git pacman sudo rdfind \
           bc docbook-xsl pahole inetutils \
           xmlto cpio make
       - name: Clone repos
