@@ -71,4 +71,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact
-          path: ${{ env.workdir }}/*.pkg.tar.*
+          path: ${{ env.workdir }}/src/*.pkg.tar.*
