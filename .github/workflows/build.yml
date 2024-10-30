@@ -37,12 +37,12 @@ jobs:
           echo "PACKAGER=\"Yurii Huang <funningc0217@foxmail.com>\"" >> /etc/makepkg.conf
           cat /etc/makepkg.conf |grep "PACKAGER="
           echo "whoami: $(whoami)"; echo "PWD: $PWD"; echo "HOME: $HOME"; ls -al /builder
-          su - builder -c "git clone https://github.com/${{ github.repository }}.git -b ${GITHUB_BRANCH} src"
+          su - builder -c "git clone https://github.com/${{ github.repository }}.git -b  ${GITHUB_REF##*/} src"
       - name: Build
         shell: bash
         working-directory: ${{ env.workdir }}/src
         run: |
-          su - builder -c "makepkg -s PKGBUILD"
+          su - builder -c "cd ${{ env.workdir }}/src; makepkg -s PKGBUILD"
           ls -al
       - name: Sign
         shell: bash
