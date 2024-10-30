@@ -1,0 +1,75 @@
+name: kernel_build
+
+env:
+  # branch: unstable
+  # build-mirror: https://mirrors.manjaro.org/repo
+  # bump-kernel: false
+  # bump-pkgrel: false
+  # gpg-key: true
+  # gpg-passphrase: true
+  # url: github
+  workdir: /builder
+
+on:
+  push:
+
+jobs:
+  build-kernel:
+    runs-on: ubuntu-20.04
+    container:
+      image: carterjones/manjaro
+      volumes:
+        - /dev:/dev
+      options: --ulimit nofile=1024:10240 --privileged
+    timeout-minutes: 720 # timeout 12h
+    steps:
+      - name: Preserve evn set in the container
+        run: |
+          echo HOME=/builder >> "$GITHUB_ENV"
+          echo PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin >> "$GITHUB_ENV"
+      - name: Install build dependencies
+        shell: bash
+        working-directory: ${{ env.workdir }}
+        run: |
+          echo "Y"| sudo pacman -Sy base-devel git pacman sudo \
+          bc docbook-xsl pahole inetutils \
+          xmlto cpio make
+      - name: Clone repos
+        shell: bash
+        working-directory: ${{ env.workdir }}
+        run: |
+          KERNEL=$(echo ${{ github.repository }} | cut -d'/' -f2)
+          GITHUB_BRANCH=$(echo ${{ github.ref }}| cut -d'/' -f3)
+          echo "KERNEL=${KERNEL}" >>$GITHUB_ENV
+          sed -i "s/MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j8\"/g" /etc/makepkg.conf
+          cat /etc/makepkg.conf |grep "MAKEFLAGS="
+          echo "PACKAGER=\"Yurii Huang <funningc0217@foxmail.com>\"" >> /etc/makepkg.conf
+          cat /etc/makepkg.conf |grep "PACKAGER="
+          echo "whoami: $(whoami)"; echo "PWD: $PWD"; echo "HOME: $HOME"; ls -al /builder
+          su - builder -c "git clone https://github.com/${{ github.repository }}.git -b ${GITHUB_BRANCH} src"
+          su - builder -c "cp -arpf src/pacman/* ./"
+      - name: Build
+        shell: bash
+        working-directory: ${{ env.workdir }}
+        run: |
+          echo "whoami: $(whoami)"
+          su - builder -c "makepkg PKGBUILD"
+          ls -al; ls -al pkg
+      - name: Sign
+        shell: bash
+        working-directory: ${{ env.workdir }}
+        run: |
+          if [ -z "${{ secrets.CALONG_GPG_PRI }}" ] || [ -z "${{ secrets.CALONG_GPG_PASSWD }}" ]; then
+              echo "## gpg credentials not provided. Skip signing."
+          else
+              cat <(echo -e "${{ secrets.CALONG_GPG_PRI }}" | base64 --decode) | gpg --batch --import &>/dev/null
+              for p in $(find $PWD -maxdepth 1 -regex '.*\.pkg\.tar\.\(xz\|zst\)'); do
+                echo "## signing $p"
+                gpg --pinentry-mode loopback --passphrase "${{ secrets.CALONG_GPG_PASSWD }}" --detach-sign ${p}
+              done
+          fi
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: ${{ env.workdir }}/*.pkg.tar.*
