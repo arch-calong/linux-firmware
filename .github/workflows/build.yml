@@ -42,7 +42,7 @@ jobs:
         shell: bash
         working-directory: ${{ env.workdir }}/src
         run: |
-          su - builder -c "cd ${{ env.workdir }}/src; makepkg -s PKGBUILD"
+          su - builder -c "cd ${{ env.workdir }}/src && sudo makepkg -s PKGBUILD"
           ls -al
       - name: Sign
         shell: bash
