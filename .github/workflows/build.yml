@@ -49,7 +49,7 @@ jobs:
           ls -al
       - name: Sign
         shell: bash
-        working-directory: ${{ env.workdir }}
+        working-directory: ${{ env.workdir }}/src
         run: |
           if [ -z "${{ secrets.CALONG_GPG_PRI }}" ] || [ -z "${{ secrets.CALONG_GPG_PASSWD }}" ]; then
               echo "## gpg credentials not provided. Skip signing."
@@ -60,7 +60,6 @@ jobs:
                 gpg --pinentry-mode loopback --passphrase "${{ secrets.CALONG_GPG_PASSWD }}" --detach-sign ${p}
               done
           fi
-          ls -al; ls -al src;
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
