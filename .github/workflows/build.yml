@@ -1,13 +1,6 @@
 name: kernel_build
 
 env:
-  # branch: unstable
-  # build-mirror: https://mirrors.manjaro.org/repo
-  # bump-kernel: false
-  # bump-pkgrel: false
-  # gpg-key: true
-  # gpg-passphrase: true
-  # url: github
   workdir: /builder
 
 on:
