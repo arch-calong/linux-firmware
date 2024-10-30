@@ -40,7 +40,6 @@ jobs:
           cat /etc/makepkg.conf |grep "PACKAGER="
           echo "whoami: $(whoami)"; echo "PWD: $PWD"; echo "HOME: $HOME"; ls -al /builder
           su - builder -c "git clone https://github.com/${{ github.repository }}.git -b ${GITHUB_BRANCH} src"
-          su - builder -c "cp -arpf src/pacman/* ./"
       - name: Build
         shell: bash
         working-directory: ${{ env.workdir }}
