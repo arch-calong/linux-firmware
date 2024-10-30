@@ -42,7 +42,7 @@ jobs:
           su - builder -c "git clone https://github.com/${{ github.repository }}.git -b ${GITHUB_BRANCH} src"
       - name: Build
         shell: bash
-        working-directory: ${{ env.workdir }}
+        working-directory: ${{ env.workdir }}/src
         run: |
           echo "whoami: $(whoami)"
           su - builder -c "makepkg PKGBUILD"
